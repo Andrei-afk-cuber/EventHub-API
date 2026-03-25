@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
-
+# custom manager for User model
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password, date_of_birth, phone_number, **extra_fields):
         extra_fields.setdefault('is_staff', False)
