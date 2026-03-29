@@ -28,18 +28,22 @@ class Event(models.Model):
         verbose_name = "Мероприятие"
         verbose_name_plural = "Мероприятия"
 
+    def __str__(self):
+        return self.title
+
 # review model
 class Review(models.Model):
     user = models.ForeignKey('users.User', on_delete=models.CASCADE)
     event = models.ForeignKey('events.Event', on_delete=models.CASCADE)
     rating = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
-    text = models.TextField()
+    text = models.TextField(null=False)
     date = models.DateField()
 
+    # user check
     def clean(self):
         has_booking = self.event.bookings.filter(
             user=self.user,
-            status_in=['confirmed']
+            status__in=['confirmed']
         )
 
         if not has_booking:
@@ -48,3 +52,6 @@ class Review(models.Model):
     class Meta:
         verbose_name = "Отзыв"
         verbose_name_plural = "Отзывы"
+
+    def __str__(self):
+        return self.user.username + " | " + self.event.title

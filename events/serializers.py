@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from events.models import Event, Review
+from users.models import User
 
 
 # serializer for list
@@ -26,7 +27,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 # serializer for retrieve
 class EventRetrieveSerializer(serializers.ModelSerializer):
-    bookings = ReviewSerializer(many=True, read_only=True)
+    reviews = ReviewSerializer(many=True, read_only=True)
     available_seats = serializers.SerializerMethodField()
     class Meta:
         model = Event
