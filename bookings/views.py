@@ -1,6 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Booking
@@ -10,7 +10,15 @@ from .serializers import BookingSerializer
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_organizer:
+            return Booking.objects.filter(event__organizer=user)
+        else:
+            return Booking.objects.filter(user=user)
 
     @action(detail=True, methods=['delete'], url_path='cancel')
     def cancel(self, request, pk=None):

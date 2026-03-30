@@ -73,6 +73,7 @@ class EventViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='book')
     def create_book(self, request, pk=None):
         data = request.data
+        data['event'] = pk
 
         serializer = BookingSerializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
