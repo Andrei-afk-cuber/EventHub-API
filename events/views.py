@@ -1,19 +1,18 @@
-from re import search
-
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from bookings.serializers import BookingSerializer
 from .models import Event, Review
 from .serializers import EventSerializer, ReviewSerializer, EventRetrieveSerializer
+from .permissions import IsOrganizerOrReadOnly
 
 # Event viewset
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsOrganizerOrReadOnly]
 
     ALLOWED_ORDERING_FIELDS = ['start_date', '-start_date','end_date', '-end_date', 'price', '-price']
 
