@@ -38,6 +38,7 @@ class Review(models.Model):
     rating = models.FloatField(validators=[MinValueValidator(0.0), MaxValueValidator(5.0)])
     text = models.TextField(null=False)
     date = models.DateField()
+    is_hidden = models.BooleanField(default=False)
 
     # user check
     def clean(self):

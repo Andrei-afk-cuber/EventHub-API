@@ -22,3 +22,26 @@ class IsOrganizerOrReadOnly(BasePermission):
             return True
 
         return obj.organizer == request.user
+
+class AuthorOrganizerOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        # for workers
+        if request.user.is_staff:
+            return True
+        # for safe methods
+        if request.method in SAFE_METHODS:
+            return True
+        if request.user.is_authenticated:
+            return True
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_staff:
+            return True
+        # for author
+        if obj.user == request.user and view.action:
+            return True
+        # for organizers
+        if obj.event.organizer == request.user and view.action == 'hide':
+            return True
+        return False

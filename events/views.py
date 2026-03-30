@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from bookings.serializers import BookingSerializer
 from .models import Event, Review
 from .serializers import EventSerializer, ReviewSerializer, EventRetrieveSerializer
-from .permissions import IsOrganizerOrReadOnly
+from .permissions import IsOrganizerOrReadOnly, AuthorOrganizerOrReadOnly
 
 # Event viewset
 class EventViewSet(viewsets.ModelViewSet):
@@ -84,4 +84,11 @@ class EventViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AuthorOrganizerOrReadOnly]
+
+    @action(detail=True, methods=['put', 'patch'], url_path='hide')
+    def hide(self, request, pk=None):
+        review = self.get_object()
+        review.is_hidden = True
+        review.save()
+        return Response(ReviewSerializer(review).data, status=status.HTTP_200_OK)
