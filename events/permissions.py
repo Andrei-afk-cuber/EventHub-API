@@ -6,16 +6,18 @@ class IsOrganizerOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         if request.user and request.user.is_staff:
             return True
-
         if request.method in SAFE_METHODS:
             return True
 
-        return request.user and request.user.is_authenticated and request.user.is_organizer
+        if view.action == 'create_book':
+            return request.user and request.user.is_authenticated
+
+        return request.user and request.user.is_organizer
 
     def has_object_permission(self, request, view, obj):
-        if request.method and request.user.is_staff:
+        if request.user and request.user.is_staff:
             return True
-
+        breakpoint()
         if request.method in SAFE_METHODS:
             return True
 
