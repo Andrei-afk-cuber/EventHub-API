@@ -33,5 +33,3 @@ def get_token(client, django_user_model, is_organizer=False):
     )
 
     return response.data['access'], user
-
-# TODO ревью

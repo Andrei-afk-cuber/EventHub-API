@@ -49,6 +49,3 @@ class TestCreateUser:
         )
         assert response.status_code == 400
         assert response.data == expected_data
-
-# TODO ревью
-# TODO узнать на каком моменте создаются объекты фабрик в БД (во время первого использования или как?)

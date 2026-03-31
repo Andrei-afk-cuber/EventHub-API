@@ -20,5 +20,3 @@ def test_user_retrieve(client, user, token):
 
     assert response.status_code == 200
     assert response.data == expected_data
-
-# TODO ревью
