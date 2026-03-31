@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from events.models import Event, Review
-from users.models import User
 
 
 # serializer for list
@@ -9,7 +8,7 @@ class EventListSerializer(serializers.ModelSerializer):
     free_seats = serializers.SerializerMethodField()
     organizer = serializers.SlugRelatedField(
         read_only=True,
-        slug_field='name'
+        slug_field='username'
     )
 
     class Meta:
@@ -43,6 +42,12 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = '__all__'
         read_only_fields = ('id', 'organizer')
+
+    def validate(self, attrs):
+        if attrs['start_date'] > attrs['end_date']:
+            raise serializers.ValidationError()
+
+        return attrs
 
     def create(self, validated_data):
         validated_data['organizer'] = self.context['request'].user

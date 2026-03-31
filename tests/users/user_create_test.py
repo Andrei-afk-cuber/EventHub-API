@@ -6,14 +6,6 @@ from rest_framework.exceptions import ErrorDetail
 @pytest.mark.django_db
 class TestCreateUser:
     def test_create_user(self, client):
-        expected_data = {
-            'id': 1,
-            'username': 'new_test_user',
-            'email': '',
-            'phone_number': '+375292847284',
-            'date_of_birth': '2006-01-26',
-            'is_organizer': False
-        }
 
         response = client.post(
             '/users/create/',
@@ -26,6 +18,16 @@ class TestCreateUser:
             },
             format='json'
         )
+
+        expected_data = {
+            'id': response.data['id'],
+            'username': 'new_test_user',
+            'email': '',
+            'phone_number': '+375292847284',
+            'date_of_birth': '2006-01-26',
+            'is_organizer': False
+        }
+
         assert response.status_code == 201
         assert response.data == expected_data
 
@@ -47,3 +49,6 @@ class TestCreateUser:
         )
         assert response.status_code == 400
         assert response.data == expected_data
+
+# TODO ревью
+# TODO узнать на каком моменте создаются объекты фабрик в БД (во время первого использования или как?)

@@ -15,8 +15,10 @@ def test_user_retrieve(client, user, token):
 
     response = client.get(
         f'/users/{user.id}/',
-        HTTP_AUTHORIZATION=f"Bearer " + token,
+        HTTP_AUTHORIZATION=f"Bearer " + token[0],
     )
 
     assert response.status_code == 200
     assert response.data == expected_data
+
+# TODO ревью

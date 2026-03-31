@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from bookings.serializers import BookingSerializer
 from .models import Event, Review
-from .serializers import EventSerializer, ReviewSerializer, EventRetrieveSerializer
+from .serializers import EventSerializer, ReviewSerializer, EventRetrieveSerializer, EventListSerializer
 from .permissions import IsOrganizerOrReadOnly, AuthorOrganizerOrReadOnly
 
 # Event viewset
@@ -26,7 +26,14 @@ class EventViewSet(viewsets.ModelViewSet):
         # ordering
         queryset = self._apply_ordering(request, queryset)
 
-        return Response(EventSerializer(queryset, many=True).data)
+        # add pagination
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = EventListSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        return Response(EventListSerializer(queryset, many=True).data)
 
     def _apply_ordering(self, request, queryset):
         ordering = request.GET.get('ordering', None)
