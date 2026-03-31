@@ -60,5 +60,3 @@ class ReviewFactory(factory.django.DjangoModelFactory):
     rating = 5.0
     text = "Review text"
     date = "2025-01-02"
-
-# TODO где производить валидацию данных?
