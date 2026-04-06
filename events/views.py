@@ -1,14 +1,22 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from drf_spectacular.utils import extend_schema_view, extend_schema
 
 from bookings.serializers import BookingSerializer
 from .models import Event, Review
 from .serializers import EventSerializer, ReviewSerializer, EventRetrieveSerializer, EventListSerializer
 from .permissions import IsOrganizerOrReadOnly, AuthorOrganizerOrReadOnly
 
+
 # Event viewset
+@extend_schema_view(
+    retrieve=extend_schema(summary='Get event'),
+    create=extend_schema(summary='Create event'),
+    update=extend_schema(summary='Fully update event'),
+    partial_update=extend_schema(summary='Partially update event'),
+    destroy=extend_schema(summary='Delete event'),
+)
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
@@ -17,6 +25,7 @@ class EventViewSet(viewsets.ModelViewSet):
     ALLOWED_ORDERING_FIELDS = ['start_date', '-start_date','end_date', '-end_date', 'price', '-price']
 
     # override list action
+    @extend_schema(description='Get filtered, ordered and paginated list of events', summary='Get list of events')
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
 
@@ -72,11 +81,20 @@ class EventViewSet(viewsets.ModelViewSet):
         else:
             return EventSerializer
 
+    @extend_schema(description='Get all reviews for event by pk', summary='Reviews for event')
     @action(detail=True, methods=['get'], url_path='reviews')
     def reviews(self, request, pk=None):
-        reviews = Review.objects.filter(event=pk)
-        return Response(ReviewSerializer(instance=reviews, many=True).data)
+        if pk is None:
+            return Response(
+                {'detail': 'Event ID is required'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
+        reviews = Review.objects.filter(event=pk)
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(description='Create book for event', summary='Create book')
     @action(detail=True, methods=['post'], url_path='book')
     def create_book(self, request, pk=None):
         data = request.data
@@ -88,12 +106,23 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # Review view set
+@extend_schema_view(
+    list=extend_schema(summary='Get list of reviews'),
+    retrieve=extend_schema(exclude=True),
+    update=extend_schema(exclude=True),
+    partial_update=extend_schema(exclude=True),
+    put=extend_schema(summary='Update reviews'),
+    patch=extend_schema(summary='Partially update reviews'),
+    destroy=extend_schema(summary='Delete reviews'),
+)
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [AuthorOrganizerOrReadOnly]
+    http_method_names = ['get', 'put', 'patch', 'delete']
 
-    @action(detail=True, methods=['put', 'patch'], url_path='hide')
+    @extend_schema(summary='Hide review')
+    @action(detail=True, methods=['patch'], url_path='hide')
     def hide(self, request, pk=None):
         review = self.get_object()
         review.is_hidden = True
